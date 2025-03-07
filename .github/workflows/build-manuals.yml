@@ -10,7 +10,7 @@ permissions:
   contents: read  # This is required for actions/checkout
 
 jobs:
-  prep-env:
+  BuildManuals:
     runs-on: "ubuntu-22.04"
     steps:
       - name: "Install Python 2"
@@ -28,21 +28,9 @@ jobs:
       - name: "Build Manuals"
         run: |
           python2 master.py
-      - name: "Upload FEBio Studio Manual"
+      - name: "Upload Manuals"
         uses: actions/upload-artifact@v4
         with:
           name: FEBioStudioManual
           path: |
-            jekyll/FEBioStudio*/_site
-      - name: "Upload FEBio User Manual"
-        uses: actions/upload-artifact@v4
-        with:
-          name: FEBioUserManual
-          path: |
-            jekyll/FEBioUser*/_site
-      - name: "Upload FEBio Theory Manual"
-        uses: actions/upload-artifact@v4
-        with:
-          name: FEBioTheoryManual
-          path: |
-            jekyll/FEBioTheory*/_site
+            jekyll/**/_site
