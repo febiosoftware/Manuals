@@ -1,7 +1,7 @@
 import ftplib, os
 
 server = os.environ['FTP_SERVER']
-username = os.environ['FTP_USERNAME']
+username = os.environ['FTP_USER']
 password = os.environ['FTP_PASSWORD']
 
 
