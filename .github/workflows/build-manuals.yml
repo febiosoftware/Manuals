@@ -20,14 +20,15 @@ jobs:
       - name: "Install Jekyll"
         run: |
           sudo apt-get install ruby-full build-essential zlib1g-dev
-          echo 'export GEM_HOME="$HOME/gems"' >> ~/.bashrc
-          echo 'export PATH="$HOME/gems/bin:$PATH"' >> ~/.bashrc
-          source ~/.bashrc
-          sudo gem install jekyll bundler
+          export GEM_HOME="$HOME/gems"
+          export PATH="$HOME/gems/bin:$PATH"
+          gem install jekyll bundler
       - name: "Checkout"
         uses: actions/checkout@v2
       - name: "Build Manuals"
         run: |
+          export GEM_HOME="$HOME/gems"
+          export PATH="$HOME/gems/bin:$PATH"
           python2 master.py
       - name: "Upload Manuals"
         uses: actions/upload-artifact@v4
