@@ -1,0 +1,58 @@
+name: Build Manuals
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [release-published]
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+
+jobs:
+  prep-env:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Install Python 2"
+        run: |
+          sudo apt-get update
+          sudo apt-get install python2
+      - name: "Install Jekyll"
+        run: |
+          sudo apt-get install ruby-full build-essential zlib1g-dev
+          export GEM_HOME="$HOME/gems"
+          export PATH="$HOME/gems/bin:$PATH"
+          gem install jekyll bundler
+
+  build-manuals:
+    runs-on: "ubuntu-latest"
+    needs: "prep-env"
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v2
+      - name: "Build Manuals"
+        run: |
+          python2 master.py
+
+  upload-manuals:
+    runs-on: "ubuntu-latest"
+    needs: "build-manuals"
+    steps:
+      - name: "Upload FEBio Studio Manual"
+        uses: actions/upload-artifact@v4
+        with:
+          name: FEBioStudioManual
+          path: |
+            jekyll/FEBioStudio*/_site
+      - name: "Upload FEBio User Manual"
+        uses: actions/upload-artifact@v4
+        with:
+          name: FEBioUserManual
+          path: |
+            jekyll/FEBioUser*/_site
+      - name: "Upload FEBio Theory Manual"
+        uses: actions/upload-artifact@v4
+        with:
+          name: FEBioTheoryManual
+          path: |
+            jekyll/FEBioTheory*/_site
