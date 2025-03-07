@@ -8,11 +8,11 @@ subprocess.call(["git", "clone", "--branch", "master", "--depth", "1", FBS_GIT])
 subprocess.call(["git", "clone", "--branch", "master", "--depth", "1", FEBIO_GIT])
 
 # Get the version numbers
-out = subprocess.check_output(["git", "-C", "FEBioStudio", "describe"]).replace("v", "").split('.')
+out = subprocess.check_output(["git", "-C", "FEBioStudio", "describe"]).decode("utf-8").replace("v", "").split('.')
 FBS_MAJOR = out[0].strip()
 FBS_MINOR = out[1].strip()
 
-out = subprocess.check_output(["git", "-C", "FEBio", "describe"]).replace("v", "").split('.')
+out = subprocess.check_output(["git", "-C", "FEBio", "describe"]).decode("utf-8").replace("v", "").split('.')
 FEBIO_MAJOR = out[0].strip()
 FEBIO_MINOR = out[1].strip()
 
@@ -43,13 +43,13 @@ shutil.copytree("FEBio/Documentation/Figures", FT_LYX_DIR + "Figures")
 # If elyxer is called more than once in a script, it crashes. 
 # So we have to call it as a subprocess
 os.chdir(FBS_LYX_DIR)
-os.system("python2 " + BASEDIR + "buildManual.py")
+os.system("python3 " + BASEDIR + "buildManual.py")
 
 os.chdir(FU_LYX_DIR)
-os.system("python2 " + BASEDIR + "buildManual.py")
+os.system("python3 " + BASEDIR + "buildManual.py")
 
 os.chdir(FT_LYX_DIR)
-os.system("python2 " + BASEDIR + "buildManual.py")
+os.system("python3 " + BASEDIR + "buildManual.py")
 
 # Set up the directory structure jekyll
 JEKYLL_TEMPLATE_DIR = BASEDIR + "JekyllTemplate/"

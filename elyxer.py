@@ -24,21 +24,7 @@
 # http://www.nongnu.org/elyxer/
 
 
-import sys
-
-
-
-
-import os.path
-
-
-
-import sys
-import codecs
-
-
-
-import sys
+import sys, os.path, sys, codecs, io
 
 class Trace(object):
   "A tracing class"
@@ -93,7 +79,7 @@ class LineReader(object):
   "Reads a file line by line"
 
   def __init__(self, filename):
-    if isinstance(filename, file):
+    if isinstance(filename, io.IOBase):
       self.file = filename
     else:
       self.file = codecs.open(filename, 'rU', 'utf-8')
@@ -142,7 +128,7 @@ class LineReader(object):
     self.current = self.current.rstrip('\n\r')
     self.linenumber += 1
     self.mustread = False
-    Trace.prefix = 'Line ' + unicode(self.linenumber) + ': '
+    Trace.prefix = 'Line ' + str(self.linenumber) + ': '
     if self.linenumber % 1000 == 0:
       Trace.message('Parsing')
 
@@ -163,7 +149,7 @@ class LineWriter(object):
   file = False
 
   def __init__(self, filename):
-    if isinstance(filename, file):
+    if isinstance(filename, io.IOBase):
       self.file = filename
       self.filename = None
     else:
@@ -172,8 +158,8 @@ class LineWriter(object):
   def write(self, strings):
     "Write a list of strings"
     for string in strings:
-      if not isinstance(string, basestring):
-        Trace.error('Not a string: ' + unicode(string) + ' in ' + unicode(strings))
+      if not isinstance(string, str):
+        Trace.error('Not a string: ' + str(string) + ' in ' + str(strings))
         return
       self.writestring(string)
 
@@ -1149,7 +1135,7 @@ class CommandLineParser(object):
       initial = args[0]
       del args[0]
       return key, self.readquoted(args, initial)
-    value = args[0].decode('utf-8')
+    value = args[0]
     del args[0]
     if isinstance(current, list):
       current.append(value)
@@ -1416,9 +1402,9 @@ class BranchOptions(object):
       return False
     return self.options['selected'] == '1'
 
-  def __unicode__(self):
+  def __repr__(self):
     "String representation"
-    return 'options for ' + self.name + ': ' + unicode(self.options)
+    return 'options for ' + self.name + ': ' + str(self.options)
 
 
 
@@ -1484,7 +1470,7 @@ class Translator(object):
     try:
       self.translation = gettext.translation('elyxer', None, langcodes)
     except IOError:
-      Trace.error('No translation for ' + unicode(langcodes))
+      Trace.error('No translation for ' + str(langcodes))
 
   def getmessage(self, key):
     "Get the translated message for the given key."
@@ -1543,7 +1529,7 @@ class NumberCounter(object):
 
   def gettext(self):
     "Get the next value as a text string."
-    return unicode(self.value)
+    return str(self.value)
 
   def getletter(self):
     "Get the next value as a letter."
@@ -1593,7 +1579,7 @@ class NumberCounter(object):
     "Reset the counter."
     self.value = 0
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     result = 'Counter ' + self.name
     if self.mode:
@@ -1814,7 +1800,7 @@ class Parser(object):
   def parseending(self, reader, process):
     "Parse until the current ending is found"
     if not self.ending:
-      Trace.error('No ending for ' + unicode(self))
+      Trace.error('No ending for ' + str(self))
       return
     while not reader.currentline().startswith(self.ending):
       process()
@@ -1825,9 +1811,9 @@ class Parser(object):
       container.parent = self.parent
       contents.append(container)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a description"
-    return self.__class__.__name__ + ' (' + unicode(self.begin) + ')'
+    return self.__class__.__name__ + ' (' + str(self.begin) + ')'
 
 class LoneCommand(Parser):
   "A parser for just one command line"
@@ -1934,7 +1920,7 @@ class ContainerOutput(object):
 
   def gethtml(self, container):
     "Show an error."
-    Trace.error('gethtml() not implemented for ' + unicode(self))
+    Trace.error('gethtml() not implemented for ' + str(self))
 
   def isempty(self):
     "Decide if the output is empty: by default, not empty."
@@ -1967,7 +1953,7 @@ class ContentsOutput(ContainerOutput):
       return html
     for element in container.contents:
       if not hasattr(element, 'gethtml'):
-        Trace.error('No html in ' + element.__class__.__name__ + ': ' + unicode(element))
+        Trace.error('No html in ' + element.__class__.__name__ + ': ' + str(element))
         return html
 # gerard additions start
 # let \eqref latex commands pass through without modification
@@ -2045,7 +2031,7 @@ class TaggedOutput(ContentsOutput):
   def checktag(self):
     "Check that the tag is valid."
     if not self.tag:
-      Trace.error('No tag in ' + unicode(container))
+      Trace.error('No tag in ' + str(container))
       return False
     if self.tag == '':
       return False
@@ -2328,13 +2314,13 @@ class EndingList(object):
   def checkpending(self):
     "Check if there are any pending endings"
     if len(self.endings) != 0:
-      Trace.error('Pending ' + unicode(self) + ' left open')
+      Trace.error('Pending ' + str(self) + ' left open')
 
-  def __unicode__(self):
+  def __repr__(self):
     "Printable representation"
     string = 'endings ['
     for ending in self.endings:
-      string += unicode(ending) + ','
+      string += str(ending) + ','
     if len(self.endings) > 0:
       string = string[:-1]
     return string + ']'
@@ -2350,7 +2336,7 @@ class PositionEnding(object):
     "Check for the ending"
     return pos.checkfor(self.ending)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Printable representation"
     string = 'Ending ' + self.ending
     if self.optional:
@@ -2485,13 +2471,13 @@ class FilePosition(Position):
     "Return the current line and line number in the file."
     before = self.reader.currentline()[:self.pos - 1]
     after = self.reader.currentline()[self.pos:]
-    return 'line ' + unicode(self.getlinenumber()) + ': ' + before + '*' + after
+    return 'line ' + str(self.getlinenumber()) + ': ' + before + '*' + after
 
   def isout(self):
     "Find out if we are out of the text yet."
     if self.pos > len(self.reader.currentline()):
       if self.pos > len(self.reader.currentline()) + 1:
-        Trace.error('Out of the line ' + self.reader.currentline() + ': ' + unicode(self.pos))
+        Trace.error('Out of the line ' + self.reader.currentline() + ': ' + str(self.pos))
       self.nextline()
     return self.reader.finished()
 
@@ -2500,7 +2486,7 @@ class FilePosition(Position):
     if self.pos == len(self.reader.currentline()):
       return '\n'
     if self.pos > len(self.reader.currentline()):
-      Trace.error('Out of the line ' + self.reader.currentline() + ': ' + unicode(self.pos))
+      Trace.error('Out of the line ' + self.reader.currentline() + ': ' + str(self.pos))
       return '*'
     return self.reader.currentline()[self.pos]
 
@@ -2529,7 +2515,7 @@ class Container(object):
   def gethtml(self):
     "Get the resulting HTML"
     html = self.output.gethtml(self)
-    if isinstance(html, basestring):
+    if isinstance(html, str):
       Trace.error('Raw string ' + html)
       html = [html]
     return self.escapeall(html)
@@ -2552,7 +2538,7 @@ class Container(object):
     "Escape a line with replacements from elyxer.a map"
     pieces = replacements.keys()
     # do them in order
-    pieces.sort()
+    pieces = sorted(pieces)
     for piece in pieces:
       if piece in line:
         line = line.replace(piece, replacements[piece])
@@ -2634,7 +2620,7 @@ class Container(object):
 
   def tree(self, level = 0):
     "Show in a tree"
-    Trace.debug("  " * level + unicode(self))
+    Trace.debug("  " * level + str(self))
     for container in self.contents:
       container.tree(level + 1)
 
@@ -2660,11 +2646,11 @@ class Container(object):
       current = current.parent
     return False
 
-  def __unicode__(self):
+  def __repr__(self):
     "Get a description"
     if not self.begin:
       return self.__class__.__name__
-    return self.__class__.__name__ + '@' + unicode(self.begin)
+    return self.__class__.__name__ + '@' + str(self.begin)
 
 class BlackBox(Container):
   "A container that does not output anything"
@@ -2708,7 +2694,7 @@ class StringContainer(Container):
     if ContainerConfig.string['startcommand'] in replaced and len(replaced) > 1:
       # unprocessed commands
       if self.begin:
-        message = 'Unknown command at ' + unicode(self.begin) + ': '
+        message = 'Unknown command at ' + str(self.begin) + ': '
       else:
         message = 'Unknown command: '
       Trace.error(message + replaced.strip())
@@ -2725,11 +2711,11 @@ class StringContainer(Container):
     "Return all text."
     return self.string
   
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     result = 'StringContainer'
     if self.begin:
-      result += '@' + unicode(self.begin)
+      result += '@' + str(self.begin)
     ellipsis = '...'
     if len(self.string.strip()) <= 15:
       ellipsis = ''
@@ -2743,7 +2729,7 @@ class Constant(StringContainer):
     self.string = text
     self.output = StringOutput()
 
-  def __unicode__(self):
+  def __repr__(self):
     return 'Constant: ' + self.string
 
 class TaggedText(Container):
@@ -2767,7 +2753,7 @@ class TaggedText(Container):
     constant = Constant(text)
     return self.complete([constant], tag, breaklines)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     if not hasattr(self.output, 'tag'):
       return 'Emtpy tagged text'
@@ -2854,11 +2840,11 @@ class ContainerSize(object):
   def checkimage(self, width, height):
     "Check image dimensions, set them if possible."
     if width:
-      self.maxwidth = unicode(width) + 'px'
+      self.maxwidth = str(width) + 'px'
       if self.scale and not self.width:
         self.width = self.scalevalue(width)
     if height:
-      self.maxheight = unicode(height) + 'px'
+      self.maxheight = str(height) + 'px'
       if self.scale and not self.height:
         self.height = self.scalevalue(height)
     if self.width and not self.height:
@@ -2869,7 +2855,7 @@ class ContainerSize(object):
   def scalevalue(self, value):
     "Scale the value according to the image scale and return it as unicode."
     scaled = value * int(self.scale) / 100
-    return unicode(int(scaled)) + 'px'
+    return str(int(scaled)) + 'px'
 
   def removepercentwidth(self):
     "Remove percent width if present, to set it at the figure level."
@@ -2886,7 +2872,7 @@ class ContainerSize(object):
   def addstyle(self, container):
     "Add the proper style attribute to the output tag."
     if not isinstance(container.output, TaggedOutput):
-      Trace.error('No tag to add style, in ' + unicode(container))
+      Trace.error('No tag to add style, in ' + str(container))
     if not self.width and not self.height and not self.maxwidth and not self.maxheight:
       # nothing to see here; move along
       return
@@ -3170,7 +3156,7 @@ class Link(Container):
     self.destination = destination
     destination.destination = self
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     result = 'Link'
     if self.anchor:
@@ -3344,7 +3330,7 @@ class Label(Link):
       return None
     return self.numbered(container.parent)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     if not hasattr(self, 'key'):
       return 'Unnamed label'
@@ -3406,7 +3392,7 @@ class Reference(Link):
       value = ''
     self.formatted = self.formatted.replace(key, value)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     return 'Reference ' + self.key
 
@@ -3577,7 +3563,7 @@ class BulkFile(object):
     os.chmod(self.temp, os.stat(self.filename).st_mode)
     os.rename(self.temp, self.filename)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Get the unicode representation"
     return 'file ' + self.filename
 
@@ -3817,7 +3803,7 @@ class VariableMap(object):
     self.variables['author'] = DocumentAuthor().getvalue()
     self.variables['version'] = GeneralConfig.version['number'] + ' (' \
         + GeneralConfig.version['date'] + ')'
-    self.variables['year'] = unicode(datetime.date.today().year)
+    self.variables['year'] = str(datetime.date.today().year)
     self.variables['date'] = datetime.date.today().isoformat()
     self.variables['datetime'] = datetime.datetime.now().isoformat()
     self.variables['css'] = Options.css[0]
@@ -3925,7 +3911,7 @@ class Inset(Container):
     self.type = self.header[1]
     self.output.tag = 'span class="' + self.type + '"'
 
-  def __unicode__(self):
+  def __repr__(self):
     return 'Inset of type ' + self.type
 
 class NewlineInset(Newline):
@@ -4143,7 +4129,7 @@ class PartKey(object):
       return
     self.titlecontents = extractor.extract(container)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     return 'Part key for ' + self.partkey
 
@@ -4213,7 +4199,7 @@ class LayoutPartKey(PartKey):
       return True
     return self.generator.isinordered(layout.type)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Get a printable representation."
     return 'Part key for layout ' + self.tocentry
 
@@ -4422,7 +4408,7 @@ class FormulaBit(Container):
     "Return a copy of itself."
     return self.factory.parseformula(self.original)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Get a string representation"
     return self.__class__.__name__ + ' read in ' + self.original
 
@@ -4464,7 +4450,7 @@ class FormulaConstant(Constant):
     "Return a copy of itself."
     return FormulaConstant(self.original)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     return 'Formula constant: ' + self.string
 
@@ -4547,7 +4533,7 @@ class WhiteSpace(FormulaBit):
     "Parse all whitespace."
     self.original += pos.skipspace()
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     return 'Whitespace: *' + self.original + '*'
 
@@ -4640,9 +4626,9 @@ class MathsProcessor(object):
 
   def process(self, contents, index):
     "Process an element inside a formula."
-    Trace.error('Unimplemented process() in ' + unicode(self))
+    Trace.error('Unimplemented process() in ' + str(self))
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable description."
     return 'Maths processor ' + self.__class__.__name__
 
@@ -4803,7 +4789,7 @@ class Formula(Container):
     self.parsed = pos.glob(lambda: True)
     pos.popending(limit)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     if self.partkey and self.partkey.number:
       return 'Formula (' + self.partkey.number + ')'
@@ -5202,7 +5188,7 @@ class BigBracket(BigSymbol):
 
   def getpiece(self, index):
     "Return the nth piece for the bracket."
-    function = getattr(self, 'getpiece' + unicode(len(self.pieces)))
+    function = getattr(self, 'getpiece' + str(len(self.pieces)))
     return function(index)
 
   def getpiece1(self, index):
@@ -5516,7 +5502,7 @@ class LimitPreviousCommand(LimitCommand):
     self.output = TaggedOutput().settag('span class="limits"')
     self.factory.clearskipped(pos)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     return 'Limit previous command'
 
@@ -5735,11 +5721,11 @@ class ParameterDefinition(object):
     else:
       self.value = function.parseparameter(pos)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     result = 'param ' + self.name
     if self.value:
-      result += ': ' + unicode(self.value)
+      result += ': ' + str(self.value)
     else:
       result += ' (empty)'
     return result
@@ -5870,7 +5856,7 @@ class HybridFunction(ParameterFunction):
       return None
     index = int(pos.skipcurrent())
     if 2 + index > len(self.translated):
-      Trace.error('Function f' + unicode(index) + ' is not defined')
+      Trace.error('Function f' + str(index) + ' is not defined')
       return None
     tag = self.translated[2 + index]
     if not '$' in tag:
@@ -5913,7 +5899,7 @@ class HybridSize(object):
     for name in function.params:
       if name in sizestring:
         size = function.params[name].value.computesize()
-        sizestring = sizestring.replace(name, unicode(size))
+        sizestring = sizestring.replace(name, str(size))
     if '$' in sizestring:
       Trace.error('Unconverted variable in hybrid size: ' + sizestring)
       return 1
@@ -5938,7 +5924,7 @@ class MacroDefinition(CommandBit):
     self.parseparameters(pos)
     self.factory.defining = False
     Trace.debug('New command ' + self.newcommand + ' (' + \
-        unicode(self.parameternumber) + ' parameters)')
+        str(self.parameternumber) + ' parameters)')
     self.macros[self.newcommand] = self
 
   def parseparameters(self, pos):
@@ -5984,8 +5970,8 @@ class MacroParameter(FormulaBit):
       Trace.error('Missing parameter start #.')
       return
     self.number = int(pos.skipcurrent())
-    self.original = '#' + unicode(self.number)
-    self.contents = [TaggedBit().constant('#' + unicode(self.number), 'span class="unknown"')]
+    self.original = '#' + str(self.number)
+    self.contents = [TaggedBit().constant('#' + str(self.number), 'span class="unknown"')]
 
 class MacroFunction(CommandBit):
   "A function that was defined using a macro."
@@ -6005,7 +5991,7 @@ class MacroFunction(CommandBit):
     self.parseoptional(pos, list(macro.defaults))
     self.parsemandatory(pos, macro.parameternumber - len(macro.defaults))
     if len(self.values) < macro.parameternumber:
-      Trace.error('Missing parameters in macro ' + unicode(self))
+      Trace.error('Missing parameters in macro ' + str(self))
 
   def parseoptional(self, pos, defaults):
     "Parse optional parameters."
@@ -6061,7 +6047,7 @@ class MacroFunction(CommandBit):
     for parameter in self.searchall(MacroParameter):
       index = parameter.number - 1
       if index >= len(self.values):
-        Trace.error('Macro parameter index out of bounds: ' + unicode(index))
+        Trace.error('Macro parameter index out of bounds: ' + str(index))
         return
       replaced[index] = True
       parameter.contents = [self.values[index].clone()]
@@ -6071,7 +6057,7 @@ class MacroFunction(CommandBit):
 
   def addfilter(self, index, value):
     "Add a filter for the given parameter number and parameter value."
-    original = '#' + unicode(index + 1)
+    original = '#' + str(index + 1)
     value = ''.join(self.values[0].gethtml())
     self.output.addfilter(original, value)
 
@@ -6089,7 +6075,7 @@ class FormulaMacro(Formula):
       self.output = EmptyOutput()
 # gerard additions end
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     return 'Math macro'
 
@@ -6348,12 +6334,12 @@ class Layout(Container):
     partkey = PartKeyGenerator.forlayout(self)
     if partkey:
       self.partkey = partkey
-      self.output.tag = self.output.tag.replace('?', unicode(partkey.level))
+      self.output.tag = self.output.tag.replace('?', str(partkey.level))
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     if self.partkey:
-      return 'Layout ' + self.type + ' #' + unicode(self.partkey.partkey)
+      return 'Layout ' + self.type + ' #' + str(self.partkey.partkey)
     return 'Layout of type ' + self.type
 
 class StandardLayout(Layout):
@@ -6862,7 +6848,7 @@ class IndexReference(Link):
       self.name = self.extracttext()
     IndexEntry.get(self.name).addref(self)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     return 'Reference to ' + self.name
 
@@ -6884,7 +6870,7 @@ class IndexHeader(Link):
 
   def addref(self, reference):
     "Create an arrow pointing to a reference."
-    reference.index = unicode(len(self.arrows))
+    reference.index = str(len(self.arrows))
     reference.destination = self.anchor
     reference.complete(u'↓', 'entry-' + self.key + '-' + reference.index)
     arrow = Link().complete(u'↑', type = 'IndexArrow')
@@ -6894,7 +6880,7 @@ class IndexHeader(Link):
     self.arrows.append(arrow)
     self.contents.append(arrow)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     return 'Index header for ' + self.name
 
@@ -6927,7 +6913,7 @@ class IndexGroup(Container):
       entry.group.sort()
       self.contents.append(entry)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     return 'Index group'
 
@@ -6966,7 +6952,7 @@ class IndexEntry(Container):
     "Split a name in parts divided by !."
     return [part.strip() for part in name.split('!')]
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     return 'Index entry for ' + self.header.name
 
@@ -7111,7 +7097,7 @@ class Table(Container):
         index += 1
       else:
         Trace.error('Unknown element type ' + element.__class__.__name__ +
-            ' in table: ' + unicode(element.contents[0]))
+            ' in table: ' + str(element.contents[0]))
         index += 1
 
 class Row(Container):
@@ -7125,7 +7111,7 @@ class Row(Container):
   def setcolumns(self, columns):
     "Process alignments for every column"
     if len(columns) != len(self.contents):
-      Trace.error('Columns: ' + unicode(len(columns)) + ', cells: ' + unicode(len(self.contents)))
+      Trace.error('Columns: ' + str(len(columns)) + ', cells: ' + str(len(self.contents)))
       return
     for index, cell in enumerate(self.contents):
       columns[index].set(cell)
@@ -7164,7 +7150,7 @@ class Cell(Container):
 
   def setattribute(self, attribute, value):
     "Set a cell attribute in the tag"
-    self.output.tag += ' ' + attribute + '="' + unicode(value) + '"'
+    self.output.tag += ' ' + attribute + '="' + str(value) + '"'
 
 class PostTable(object):
   "Postprocess a table"
@@ -7225,8 +7211,8 @@ class PostTable(object):
     if not mc:
       return
     if mc != '1':
-      Trace.error('Unprocessed multicolumn=' + unicode(multicolumn) +
-          ' cell ' + unicode(cell))
+      Trace.error('Unprocessed multicolumn=' + str(multicolumn) +
+          ' cell ' + str(cell))
       return
     total = 1
     index += 1
@@ -7292,7 +7278,7 @@ class Path(object):
     base, ext = os.path.splitext(self.path)
     return ext
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a unicode string representation"
     return self.path
 
@@ -7370,7 +7356,7 @@ class Image(Container):
     if self.origin.exists():
       ImageConverter.instance.convert(self)
     else:
-      Trace.error('Image ' + unicode(self.origin) + ' not found')
+      Trace.error('Image ' + str(self.origin) + ' not found')
     self.setsize()
     self.settag()
 
@@ -7404,7 +7390,7 @@ class Image(Container):
   def scalevalue(self, value):
     "Scale the value according to the image scale and return it as unicode."
     scaled = value * int(self.size.scale) / 100
-    return unicode(int(scaled)) + 'px'
+    return str(int(scaled)) + 'px'
 
   def settag(self):
     "Set the output tag for the image."
@@ -7455,11 +7441,11 @@ class ImageConverter(object):
         Trace.error(converter + ' not installed; images will not be processed')
         ImageConverter.active = False
         return
-      Trace.message('Converted ' + unicode(image.origin) + ' to ' +
-          unicode(image.destination))
-    except OSError, exception:
-      Trace.error('Error while converting image ' + unicode(image.origin)
-          + ': ' + unicode(exception))
+      Trace.message('Converted ' + str(image.origin) + ' to ' +
+          str(image.destination))
+    except (OSError, exception):
+      Trace.error('Error while converting image ' + str(image.origin)
+          + ': ' + str(exception))
 
   def buildcommand(self, image):
     "Build the command to convert the image."
@@ -7469,7 +7455,7 @@ class ImageConverter(object):
       command = Options.converter;
     params = self.getparams(image)
     for param in params:
-      command = command.replace('$' + param, unicode(params[param]))
+      command = command.replace('$' + param, str(params[param]))
     # remove unwanted options
     while '[' in command and ']' in command:
       command = self.removeparam(command)
@@ -7518,8 +7504,8 @@ class ImageFile(object):
     "Get the dimensions of a JPG or PNG image"
     if not self.path.exists():
       return None, None
-    if unicode(self.path) in ImageFile.dimensions:
-      return ImageFile.dimensions[unicode(self.path)]
+    if str(self.path) in ImageFile.dimensions:
+      return ImageFile.dimensions[str(self.path)]
     dimensions = (None, None)
     if self.path.hasext('.png'):
       dimensions = self.getpngdimensions()
@@ -7527,7 +7513,7 @@ class ImageFile(object):
       dimensions = self.getjpgdimensions()
     elif self.path.hasext('.svg'):
       dimensions = self.getsvgdimensions()
-    ImageFile.dimensions[unicode(self.path)] = dimensions
+    ImageFile.dimensions[str(self.path)] = dimensions
     return dimensions
 
   def getpngdimensions(self):
@@ -7544,7 +7530,7 @@ class ImageFile(object):
     jpgfile = self.path.open()
     start = self.readword(jpgfile)
     if start != int('ffd8', 16):
-      Trace.error(unicode(self.path) + ' not a JPEG file')
+      Trace.error(str(self.path) + ' not a JPEG file')
       return (None, None)
     self.skipheaders(jpgfile, ['ffc0', 'ffc2'])
     self.seek(jpgfile, 3)
@@ -7613,8 +7599,8 @@ class ListItem(Container):
     tag = TaggedText().complete(self.contents, 'li', True)
     self.contents = [tag]
 
-  def __unicode__(self):
-    return self.type + ' item @ ' + unicode(self.begin)
+  def __repr__(self):
+    return self.type + ' item @ ' + str(self.begin)
 
 class DeeperList(Container):
   "A nested list"
@@ -7631,10 +7617,10 @@ class DeeperList(Container):
       Trace.error('Empty deeper list')
       return
 
-  def __unicode__(self):
-    result = 'deeper list @ ' + unicode(self.begin) + ': ['
+  def __repr__(self):
+    result = 'deeper list @ ' + str(self.begin) + ': ['
     for element in self.contents:
-      result += unicode(element) + ', '
+      result += str(element) + ', '
     return result[:-2] + ']'
 
 class PendingList(object):
@@ -7691,10 +7677,10 @@ class PendingList(object):
     self.contents = [item]
     self.type = 'Itemize'
 
-  def __unicode__(self):
-    result = 'pending ' + unicode(self.type) + ': ['
+  def __repr__(self):
+    result = 'pending ' + str(self.type) + ': ['
     for element in self.contents:
-      result += unicode(element) + ', '
+      result += str(element) + ', '
     if len(self.contents) > 0:
       result = result[:-2]
     return result + ']'
@@ -7832,7 +7818,7 @@ class Float(Container):
       return [element]
     return self.searchincontents(element.contents, type)
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation"
     return 'Floating inset of type ' + self.type
 
@@ -7935,7 +7921,7 @@ class Listing(Container):
     if self.numbered:
       self.counter += 1
       tag = 'span class="number-' + self.numbered + '"'
-      contents.insert(0, TaggedText().constant(unicode(self.counter), tag))
+      contents.insert(0, TaggedText().constant(str(self.counter), tag))
     return contents
 
 class FloatNumber(Container):
@@ -8048,7 +8034,7 @@ class IncludeInset(Container):
       contents.append(Constant(line))
     return contents
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable description."
     if not self.filename:
       return 'Included unnamed file'
@@ -8150,7 +8136,7 @@ class TeXCode(Container):
 
   def add(self, piece):
     "Add a new piece to the tag."
-    if isinstance(piece, basestring):
+    if isinstance(piece, str):
       self.addtext(piece)
     else:
       self.contents.append(piece)
@@ -8254,7 +8240,7 @@ class TeXCode(Container):
     "Parse a TeX comment: % to the end of the line."
     pos.globexcluding('\n')
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     return 'TeX code: ' + self.extracttext()
 
@@ -8347,11 +8333,11 @@ class BibTagParser(object):
     authors = ''
     if len(authorlist) == 1:
       initials = authorlist[0].surname[0:3]
-      authors = unicode(authorlist[0])
+      authors = str(authorlist[0])
     else:
       for author in authorlist:
         initials += author.surname[0:1]
-        authors += unicode(author) + ', '
+        authors += str(author) + ', '
       authors = authors[:-2]
     self.tags['surname'] = BibTag().constant(authorlist[0].surname)
     self.tags['Sur'] = BibTag().constant(initials)
@@ -8470,7 +8456,7 @@ class BibTag(Container):
       pos.error('Missing # in hash')
       return
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     return 'BibTag: ' + self.extracttext()
 
@@ -8520,7 +8506,7 @@ class BibAuthor(object):
       return ''
     return self.surname[0].toupper()
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     result = ''
     for firstname in self.firstnames:
@@ -8549,8 +8535,8 @@ class BibTeX(Container):
       bibfile = BibFile(file, showall)
       bibfile.parse()
       self.entries += bibfile.entries
-      Trace.message('Parsed ' + unicode(bibfile))
-    self.entries.sort(key = unicode)
+      Trace.message('Parsed ' + str(bibfile))
+    self.entries.sort(key = str)
     self.applystyle()
 
   def createheader(self):
@@ -8624,16 +8610,16 @@ class BibFile(object):
           self.entries.append(newentry)
           self.added += 1
         else:
-          Trace.debug('Ignored entry ' + unicode(newentry))
+          Trace.debug('Ignored entry ' + str(newentry))
           self.ignored += 1
         return
     # Skip the whole line since it's a comment outside an entry
     pos.globincluding('\n').strip()
 
-  def __unicode__(self):
+  def __repr__(self):
     "String representation"
-    string = self.filename + ': ' + unicode(self.added) + ' entries added, '
-    string += unicode(self.ignored) + ' entries ignored'
+    string = self.filename + ': ' + str(self.added) + ' entries added, '
+    string += str(self.ignored) + ' entries ignored'
     return string
 
 class BibEntry(Container):
@@ -8643,21 +8629,21 @@ class BibEntry(Container):
 
   def detect(self, pos):
     "Throw an error."
-    Trace.error('Tried to detect() in ' + unicode(self))
+    Trace.error('Tried to detect() in ' + str(self))
 
   def parse(self, pos):
     "Throw an error."
-    Trace.error('Tried to parse() in ' + unicode(self))
+    Trace.error('Tried to parse() in ' + str(self))
 
   def isvisible(self):
     "Return if the entry should be visible. Throws an error."
-    Trace.error('Function isvisible() not implemented for ' + unicode(self))
+    Trace.error('Function isvisible() not implemented for ' + str(self))
 
   def isreferenced(self):
     "Return if the entry is referenced. Throws an error."
-    Trace.error('Function isreferenced() not implemented for ' + unicode(self))
+    Trace.error('Function isreferenced() not implemented for ' + str(self))
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a string representation"
     return 'BibTeX entry ' + self.__class__.__name__
 
@@ -8677,7 +8663,7 @@ class CommentEntry(BibEntry):
     "A comment entry is never visible."
     return False
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a string representation"
     return 'Comment'
 
@@ -8713,7 +8699,7 @@ class SpecialEntry(BibEntry):
     "A special entry is never visible."
     return False
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a string representation"
     return self.type
 
@@ -8735,7 +8721,7 @@ class StringEntry(SpecialEntry):
       return
     pos.skipspace()
     if not pos.checkskip('{'):
-      Trace.error('Missing opening { in ' + unicode(self))
+      Trace.error('Missing opening { in ' + str(self))
       pos.globincluding('\n')
       return
     pos.pushending('}')
@@ -8750,12 +8736,12 @@ class StringEntry(SpecialEntry):
       return False
     name = '@' + pos.globalpha()
     if not name.lower() == self.start.lower():
-      Trace.error('Invalid start @' + name +', missing ' + self.start + ' from elyxer.' + unicode(self))
+      Trace.error('Invalid start @' + name +', missing ' + self.start + ' from elyxer.' + str(self))
       pos.globincluding('\n')
       return False
     return True
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     result = 'string definition'
     if self.key:
@@ -8820,11 +8806,11 @@ class PubEntry(BibEntry):
     part = BibPart(self.parser.tags).parse(pos)
     for variable in part.searchall(BibVariable):
       if variable.empty():
-        Trace.error('Error parsing BibTeX template for ' + unicode(self) + ': '
-            + unicode(variable) + ' is empty')
+        Trace.error('Error parsing BibTeX template for ' + str(self) + ': '
+            + str(variable) + ' is empty')
     return [part]
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a string representation"
     string = ''
     if 'author' in self.parser.tags:
@@ -8950,7 +8936,7 @@ class BibVariable(Container):
     "Remove the output tag and leave just the contents."
     self.output = ContentsOutput()
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     result = 'variable ' + self.key
     if not self.empty():
@@ -9025,7 +9011,7 @@ class NewfangledChunk(Layout):
   def declaration(self):
     "Get the chunk declaration."
     contents = []
-    text = u'⟨' + self.name + '[' + unicode(len(NewfangledChunk.names[self.name])) + '] '
+    text = u'⟨' + self.name + '[' + str(len(NewfangledChunk.names[self.name])) + '] '
     contents.append(Constant(text))
     contents.append(self.origin)
     text = ''
@@ -9145,7 +9131,7 @@ class NewfangledChunkRef(Inset):
     self.contents.append(self.origin)
     self.contents.append(Constant(u'⟩'))
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     return 'Reference to chunk ' + self.ref
 
@@ -9168,7 +9154,7 @@ class SetCounterFunction(CommandBit):
 
   def setcounter(self, counter, value):
     "Set a global counter."
-    Trace.debug('Setting counter ' + unicode(counter) + ' to ' + unicode(value))
+    Trace.debug('Setting counter ' + str(counter) + ' to ' + str(value))
     NumberGenerator.generator.getcounter(counter).init(value)
 
 class FormulaTag(CommandBit):
@@ -9199,7 +9185,7 @@ class ContainerFactory(object):
   def __init__(self):
     "Read table that convert start lines to containers"
     types = dict()
-    for start, typename in ContainerConfig.starts.iteritems():
+    for start, typename in ContainerConfig.starts.items():
       types[start] = globals()[typename]
     self.tree = ParseTree(types)
 
@@ -9229,7 +9215,7 @@ class ContainerFactory(object):
   def parsecontents(self, container, reader):
     "Parse the contents of a container."
     contents = container.parser.parse(reader)
-    if isinstance(contents, basestring):
+    if isinstance(contents, str):
       # read a string, set as parsed
       container.parsed = contents
       container.contents = []
@@ -9260,7 +9246,7 @@ class ParseTree(object):
   def __init__(self, types):
     "Create the parse tree"
     self.root = dict()
-    for start, type in types.iteritems():
+    for start, type in types.items():
       self.addstart(type, start)
 
   def addstart(self, type, start):
@@ -9355,7 +9341,7 @@ class TOCEntry(Container):
       return False
     return True
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable representation."
     if not self.partkey.tocentry:
       return 'Unnamed TOC entry'
@@ -9402,9 +9388,9 @@ class IndentedEntry(Container):
     self.contents = [indent, entry]
     return self
 
-  def __unicode__(self):
+  def __repr__(self):
     "Return a printable documentation."
-    return 'Indented ' + unicode(self.entry)
+    return 'Indented ' + str(self.entry)
 
 class TOCTree(object):
   "A tree that contains the full TOC."
@@ -9711,7 +9697,7 @@ class NavigationLink(Container):
     "Complete the navigation link with destination container."
     "The 'after' parameter decides if the link goes after the part title."
     if not container.partkey:
-      Trace.error('No part key for link name ' + unicode(container))
+      Trace.error('No part key for link name ' + str(container))
       return
     self.link.contents = [Constant(Translator.translate(self.name))]
     partname = self.getpartname(container)
@@ -9744,7 +9730,7 @@ class UpAnchor(Link):
   def create(self, container):
     "Create the up anchor based on the first container."
     if not container.partkey:
-      Trace.error('No part key for ' + unicode(container))
+      Trace.error('No part key for ' + str(container))
       return None
     self.createliteral(container.partkey.tocentry)
     self.partkey.titlecontents = container.partkey.titlecontents
@@ -10034,7 +10020,7 @@ class PostFormula(object):
     if len(tags) == 0:
       return NumberGenerator.chaptered.generate('formula')
     if len(tags) > 1:
-      Trace.error('More than one tag in formula: ' + unicode(formula))
+      Trace.error('More than one tag in formula: ' + str(formula))
     return tags[0].tag
 
   def searchrow(self, function):
@@ -10120,10 +10106,10 @@ class eLyXerConverter(object):
     "Return the contents of the basket."
     return self.basket.contents
 
-  def __unicode__(self):
+  def __repr__(self):
     "Printable representation."
-    string = 'Converter with filtering ' + unicode(self.filtering)
-    string += ' and basket ' + unicode(self.basket)
+    string = 'Converter with filtering ' + str(self.filtering)
+    string += ' and basket ' + str(self.basket)
     return string
 
 class InOutParser(object):
@@ -10152,7 +10138,7 @@ class InOutParser(object):
     else:
       Options.destdirectory = '.'
     if len(args) > 0:
-      raise Exception('Unused arguments: ' + unicode(args))
+      raise Exception('Unused arguments: ' + str(args))
     return self
 
   def getreader(self):
@@ -10209,4 +10195,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-

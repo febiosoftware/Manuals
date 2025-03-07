@@ -11,12 +11,8 @@ permissions:
 
 jobs:
   BuildManuals:
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-latest"
     steps:
-      - name: "Install Python 2"
-        run: |
-          sudo apt-get update
-          sudo apt-get install python2
       - name: "Install Jekyll"
         run: |
           sudo apt-get install ruby-full build-essential zlib1g-dev
@@ -29,7 +25,7 @@ jobs:
         run: |
           export GEM_HOME="$HOME/gems"
           export PATH="$HOME/gems/bin:$PATH"
-          python2 master.py
+          python master.py
       - name: "Upload Manuals"
         uses: actions/upload-artifact@v4
         with:
