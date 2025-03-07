@@ -23,21 +23,11 @@ jobs:
           export GEM_HOME="$HOME/gems"
           export PATH="$HOME/gems/bin:$PATH"
           gem install jekyll bundler
-
-  build-manuals:
-    runs-on: "ubuntu-22.04"
-    needs: "prep-env"
-    steps:
       - name: "Checkout"
         uses: actions/checkout@v2
       - name: "Build Manuals"
         run: |
           python2 master.py
-
-  upload-manuals:
-    runs-on: "ubuntu-22.04"
-    needs: "build-manuals"
-    steps:
       - name: "Upload FEBio Studio Manual"
         uses: actions/upload-artifact@v4
         with:
