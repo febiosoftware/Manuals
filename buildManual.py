@@ -397,7 +397,7 @@ for i in range(len(files)):
             #If there is an eqref, replace with above reference
             #Takes into account different numbers of eqref in the line.
             if (line.find('eqref') > 0):
-                splitLine = line.split('\eqref{')
+                splitLine = line.split('\\eqref{')
                 if len(splitLine)>2:
                     for i in range(1,len(splitLine)):
                         splitLine2 = splitLine[i].split('}')

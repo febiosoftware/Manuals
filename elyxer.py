@@ -82,7 +82,7 @@ class LineReader(object):
     if isinstance(filename, io.IOBase):
       self.file = filename
     else:
-      self.file = codecs.open(filename, 'rU', 'utf-8')
+      self.file = codecs.open(filename, 'r', 'utf-8')
     self.linenumber = 1
     self.lastline = None
     self.current = None
@@ -2003,7 +2003,7 @@ class TaggedOutput(ContentsOutput):
 
   def open(self, container):
     "Get opening line."
-    if not self.checktag():
+    if not self.checktag(container):
       return ''
     open = '<' + self.tag + '>'
     if self.breaklines:
@@ -2012,7 +2012,7 @@ class TaggedOutput(ContentsOutput):
 
   def close(self, container):
     "Get closing line."
-    if not self.checktag():
+    if not self.checktag(container):
       return ''
     close = '</' + self.tag.split()[0] + '>'
     if self.breaklines:
@@ -2021,14 +2021,14 @@ class TaggedOutput(ContentsOutput):
 
   def selfclosing(self, container):
     "Get self-closing line."
-    if not self.checktag():
+    if not self.checktag(container):
       return ''
     selfclosing = '<' + self.tag + '/>'
     if self.breaklines:
       return selfclosing + '\n'
     return selfclosing
 
-  def checktag(self):
+  def checktag(self, container):
     "Check that the tag is valid."
     if not self.tag:
       Trace.error('No tag in ' + str(container))
@@ -3544,7 +3544,7 @@ class BulkFile(object):
 
   def readcodec(self, encoding):
     "Read the whole file with the given encoding"
-    filein = codecs.open(self.filename, 'rU', encoding)
+    filein = codecs.open(self.filename, 'r', encoding)
     lines = filein.readlines()
     result = []
     for line in lines:
@@ -3836,7 +3836,7 @@ class VariableMap(object):
     else:
       value = self.variables[key]
     if not pos.checkskip('-->'):
-      Trace.error('Weird template format in ' + line)
+      Trace.error('Weird template format in ' + pos)
     return value
 
 class DocumentTitle(object):
@@ -4941,7 +4941,7 @@ class FormulaCommand(FormulaBit):
     return FormulaCommand.start + pos.skipcurrent()
 
   def emptycommand(self, pos):
-    """Check for an empty command: look for command disguised as ending.
+    R"""Check for an empty command: look for command disguised as ending.
     Special case against '{ \{ \} }' situation."""
     command = ''
     if not pos.isout():
@@ -5404,7 +5404,7 @@ class EquationEnvironment(MultiRowFormula):
     self.parserows(pos)
 
 class BeginCommand(CommandBit):
-  "A \\begin{}...\end command and what it entails (array, cases, aligned)"
+  R"A \begin{}...\end command and what it entails (array, cases, aligned)"
 
   commandmap = {FormulaConfig.array['begin']:''}
 
@@ -7211,7 +7211,7 @@ class PostTable(object):
     if not mc:
       return
     if mc != '1':
-      Trace.error('Unprocessed multicolumn=' + str(multicolumn) +
+      Trace.error('Unprocessed multicolumn=' + str(mc) +
           ' cell ' + str(cell))
       return
     total = 1
@@ -7326,15 +7326,13 @@ class OutputPath(Path):
       os.makedirs(dir)
 
   def removebackdirs(self):
-    "Remove any occurrences of ../ (or ..\ on Windows)"
+    R"Remove any occurrences of ../ (or ..\ on Windows)"
     self.path = os.path.normpath(self.path)
     backdir = '..' + os.path.sep
     while self.path.startswith(backdir):
       self.path = self.path[len(backdir):]
     while self.url.startswith('../'):
       self.url = self.url[len('../'):]
-
-
 
 class Image(Container):
   "An embedded image"
@@ -7443,7 +7441,7 @@ class ImageConverter(object):
         return
       Trace.message('Converted ' + str(image.origin) + ' to ' +
           str(image.destination))
-    except (OSError, exception):
+    except OSError as exception:
       Trace.error('Error while converting image ' + str(image.origin)
           + ': ' + str(exception))
 
@@ -8488,7 +8486,7 @@ class BibAuthor(object):
     bits = tag.rsplit(None, 1)
     if len(bits) == 0:
       Trace.error('Empty author')
-      ppp()
+      # ppp() This function is undefined. I'm not sure what it was supposed to do.
       return
     self.surname = bits[-1].strip()
     if len(bits) == 1:
