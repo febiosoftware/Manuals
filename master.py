@@ -1,4 +1,4 @@
-import subprocess, os, shutil, glob
+import subprocess, os, shutil, glob, ftp
 
 # Clone the FEBio and FEBioStudio repositories
 FBS_GIT = "https://github.com/febiosoftware/FEBioStudio.git"
@@ -114,5 +114,14 @@ def runJekyll(jekyllDir, baseURL):
 runJekyll(FBS_JEKYLL_DIR, "/docs/FEBioStudio-" +  FBS_MAJOR + "-" + FBS_MINOR)
 runJekyll(FU_JEKYLL_DIR, "/docs/FEBioUser-" + FEBIO_MAJOR + "-" + FEBIO_MINOR)
 runJekyll(FT_JEKYLL_DIR, "/docs/FEBioTheory-" + FEBIO_MAJOR + "-" + FEBIO_MINOR)
+
+# Upload the files to the server
+FBS_REMOTE_DIR = "docs/FEBioStudio-" +  FBS_MAJOR + "-" + FBS_MINOR
+FU_REMOTE_DIR = "docs/FEBioUser-" + FEBIO_MAJOR + "-" + FEBIO_MINOR
+FT_REMOTE_DIR = "docs/FEBioTheory-" + FEBIO_MAJOR + "-" + FEBIO_MINOR
+
+ftp.putRecursive(FBS_JEKYLL_DIR + "/_site", FBS_REMOTE_DIR)
+ftp.putRecursive(FU_JEKYLL_DIR + "/_site", FU_REMOTE_DIR)
+ftp.putRecursive(FT_JEKYLL_DIR + "/_site", FT_REMOTE_DIR)
 
 os.chdir(BASEDIR)
