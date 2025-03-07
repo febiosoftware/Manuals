@@ -1,0 +1,237 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole site, values
+# which you are expected to set up once and rarely edit after that. If you find
+# yourself editing these this file very often, consider using Jekyll's data files
+# feature for the data you need to update frequently.
+#
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'jekyll serve'. If you change this file, please restart the server process.
+
+# Site settings
+# These are used to personalize your new site. If you look in the HTML files,
+# you will see them accessed via {{ site.title }}, {{ site.github_repo }}, and so on.
+# You can create any custom variable you would like, and they will be accessible
+# in the templates via {{ site.myvariable }}.
+url: "https://help.febio.org" # the base hostname & protocol for your site, e.g. http://example.com
+
+#####################
+#permalink: pretty
+exclude: ["node_modules/", "*.gemspec", "*.gem", "Gemfile", "Gemfile.lock", "package.json", "package-lock.json",  "script/", "LICENSE.txt", "lib/", "bin/", "README.md", "Rakefile"]
+
+# Set a path/url to a logo that will be displayed instead of the title
+logo: "/Figures/febioLogo.png"
+
+# Enable or disable the site search
+# Supports true (default) or false
+search_enabled: true
+search:
+  # Split pages into sections that can be searched individually
+  # Supports 1 - 6, default: 2
+  heading_level: 2
+  # Maximum amount of previews per search result
+  # Default: 3
+  previews: 3
+  # Maximum amount of words to display before a matched word in the preview
+  # Default: 5
+  preview_words_before: 5
+  # Maximum amount of words to display after a matched word in the preview
+  # Default: 10
+  preview_words_after: 10
+  # Set the search token separator
+  # Default: /[\s\-/]+/
+  # Example: enable support for hyphenated search words
+  tokenizer_separator: /[\s/]+/
+  # Display the relative url in search results
+  # Supports true (default) or false
+  rel_url: true
+  # Enable or disable the search button that appears in the bottom right corner of every page
+  # Supports true or false (default)
+  button: false
+
+# Enable or disable heading anchors
+heading_anchors: true
+
+# Aux links for the upper right navigation
+aux_links:
+  "FEBio Website":
+    - "https://febio.org"
+
+# Makes Aux links open in a new tab. Default is false
+aux_links_new_tab: true
+
+# Sort order for navigation links
+# nav_sort: case_insensitive # default, equivalent to nil
+nav_sort: case_sensitive # Capital letters sorted before lowercase
+
+# Include links to parent and sibling pages when showing the automatic TOC. Default is false
+nav_next_prev: false
+#
+# The default arrows can be changed to other characters or words
+# nav_prev_text: "&larr;"
+# nav_up_text:   "&uarr;"
+# nav_next_text: "&rarr;"
+
+# Caching navigation links
+nav_cache: true # default, equivalent to nil
+
+# Footer content
+# appears at the bottom of every page's main content
+
+# Back to top link
+back_to_top: true
+back_to_top_text: "Back to top"
+
+footer_content: ""
+#collections:
+  #FEBioUser-3-6:
+  #  output: true
+  #  permalink: /:collection/:path/:title/:output_ext
+
+# Footer last edited timestamp
+last_edit_timestamp: true # show or hide edit time - page must have `last_modified_date` defined in the frontmatter
+last_edit_time_format: "%b %e %Y at %I:%M %p" # uses ruby's time format: https://ruby-doc.org/stdlib-2.7.0/libdoc/time/rdoc/Time.html
+
+# Footer "Edit this page on GitHub" link text
+#gh_edit_link: true # show or hide edit this page link
+#gh_edit_link_text: "Edit this page on GitHub"
+#gh_edit_repository: "https://github.com/pmarsceill/just-the-docs" # the github URL for your repo
+#gh_edit_branch: "master" # the branch that your docs is served from
+# gh_edit_source: docs # the source that your files originate from
+#gh_edit_view_mode: "tree" # "tree" or "edit" if you want the user to jump into the editor immediately
+color_scheme: FEBio
+# Color scheme supports "dark", "light", and your custom schemes:
+# color_scheme: nil                # default: light
+# To add a button to switch all pages to a different scheme:
+#toggle_color_scheme: dark          # default: nil (no toggle button)
+# To display the toggle button only on one page:
+#toggle_page_url: "/"               # default: nil (display on all pages)
+# To toggle automatically when the system mode preference changes:
+# toggle_auto_mode: true             # default: nil (manual toggle)
+# To set the button text for toggling and reverting:
+# toggle_text_1: "&rarr; &#x26ab;" # default: "&rarr; Dark Mode"
+# toggle_text_2: "&rarr; &#x26ab;" # default: "&rarr; Light Mode"
+
+# Callouts
+#
+# The title of a callout is optional. It is rendered in uppercase.
+#
+# Each kind of callout has a color, used for the callout bar, the title, and the background.
+# Predefined colors: grey-lt, grey-dk, purple, blue, green, yellow, red.
+# If you use another color, you should define its levels (000, 100, 200, 300) in _sass/custom/custom.scss.
+#
+# The default is for callout backgrounds to have a lower color level than the bars and titles.
+# The value of `callouts_level` is either `quiet` or `loud`:
+# `loud` increases the saturation and lightness of the backgrounds.
+# The default for `callouts_level` is `quiet` when using the `light` or custom color schemes,
+# and `loud` when using the `dark` color scheme.
+#
+# Examples (not provided by default):
+#
+# callouts:
+#   admonition:
+#     # title:
+#     color: grey-lt
+#   attention:
+#     title: Attention
+#     color: purple
+#   caution:
+#     title: Caution
+#     color: yellow
+#   custom:
+#     title: Custom
+#     color: pink
+#     opacity: 0.3
+#   danger:
+#     title: Danger
+#     color: red
+#   error:
+#     title: Error
+#     color: red
+#   highlight:
+#     color: yellow
+#     opacity: 0.5
+#   hint:
+#     title: Hint
+#     color: grey-dk
+#   important:
+#     title: Important
+#     color: green
+#   note:
+#     title: Note
+#     color: blue
+#   tip:
+#     title: Tip
+#     color: grey-dk
+#   warning:
+#     title: Warning
+#     color: red
+
+# Google Analytics Tracking (optional)
+# e.g, UA-1234567-89
+#ga_tracking: G-NMJF3LQ2C4
+#ga_tracking_anonymize_ip: true # Use GDPR compliant Google Analytics settings (true/nil by default)
+
+plugins:
+  - jekyll-seo-tag
+  - jekyll-include-cache
+
+kramdown:
+  syntax_highlighter_opts:
+    block:
+      line_numbers: false
+
+compress_html:
+  clippings: all
+  comments: all
+  endings: all
+  startings: []
+  blanklines: false
+  profile: false
+  # ignore:
+  #   envs: all
+
+###########################
+
+# callouts_opacity: 0.15
+# callouts_level: loud
+
+callouts:
+  admonition:
+    # title:
+    color: grey-lt
+  attention:
+    title: Attention
+    color: purple
+  caution:
+    title: Caution
+    color: yellow
+  custom:
+    title: Custom
+    color: pink
+    opacity: 0.3
+  danger:
+    title: Danger
+    color: red
+  error:
+    title: Error
+    color: red
+  highlight:
+    color: yellow
+    opacity: 0.5
+  hint:
+    title: Hint
+    color: grey-dk
+  important:
+    title: Important
+    color: green
+  note:
+    title: Note
+    color: blue
+  tip:
+    title: Tip
+    color: grey-dk
+  warning:
+    title: Warning
+    color: red
+#####################
