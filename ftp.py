@@ -48,6 +48,3 @@ def deleteRemoteDir(path):
     ftp = ftplib.FTP(server, username, password)
     deleteDirRecursive(ftp, path)
     ftp.quit()
-
-
-putRecursive("/home/mherron/Desktop/test", "test")
