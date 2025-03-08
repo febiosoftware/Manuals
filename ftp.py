@@ -1,9 +1,8 @@
 import ftplib, os
 
 server = os.environ['FTP_SERVER']
-username = os.environ['FTP_USER']
+username = os.environ['FTP_USERNAME']
 password = os.environ['FTP_PASSWORD']
-
 
 def putRecursive(path, remoteDirname):
     ftp = ftplib.FTP(server, username, password)
@@ -49,3 +48,6 @@ def deleteRemoteDir(path):
     ftp = ftplib.FTP(server, username, password)
     deleteDirRecursive(ftp, path)
     ftp.quit()
+
+
+putRecursive("/home/mherron/Desktop/test", "test")
