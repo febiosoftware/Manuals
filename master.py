@@ -124,4 +124,11 @@ ftp.putRecursive(FBS_JEKYLL_DIR + "/_site", FBS_REMOTE_DIR)
 ftp.putRecursive(FU_JEKYLL_DIR + "/_site", FU_REMOTE_DIR)
 ftp.putRecursive(FT_JEKYLL_DIR + "/_site", FT_REMOTE_DIR)
 
+# Run doxygen
+DOX_DIR = BASEDIR + "FEBio/Documentation/Doxygen/"
+os.chdir(DOX_DIR)
+os.system("doxygen")
+ftp.putRecursive(DOX_DIR + "doc/html", "doxygen/febio" + FEBIO_MAJOR + "." + FEBIO_MINOR)
+
+
 os.chdir(BASEDIR)
