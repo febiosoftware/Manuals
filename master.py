@@ -29,7 +29,7 @@ os.mkdir(FU_LYX_DIR)
 os.mkdir(FT_LYX_DIR)
 
 shutil.copy("FEBioStudio/Documentation/FEBioStudio_User_Manual.lyx", FBS_LYX_DIR)
-# shutil.copy("FEBioStudio/Documentation/FEBioStudio.bib", FBS_LYX_DIR)
+shutil.copy("FEBioStudio/Documentation/FEBioStudio.bib", FBS_LYX_DIR)
 shutil.copytree("FEBioStudio/Documentation/Figures", FBS_LYX_DIR + "Figures")
 
 shutil.copy("FEBio/Documentation/FEBio_User_Manual.lyx", FU_LYX_DIR)
@@ -65,7 +65,7 @@ def copyHTMLFiles(srcDir, destDir):
         shutil.copy(file, destDir)
 
 shutil.copytree(JEKYLL_TEMPLATE_DIR, FBS_JEKYLL_DIR)
-# shutil.copy(FBS_LYX_DIR + "FEBioStudio.bib", FBS_JEKYLL_DIR)
+shutil.copy(FBS_LYX_DIR + "FEBioStudio.bib", FBS_JEKYLL_DIR)
 shutil.copytree(FBS_LYX_DIR + "Figures", FBS_JEKYLL_DIR + "Figures")
 shutil.copy(BASEDIR + "febioLogo.png", FBS_JEKYLL_DIR + "Figures")
 shutil.copy(BASEDIR + "FBSIndex.md", FBS_JEKYLL_DIR + "index.md")
