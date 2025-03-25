@@ -64,3 +64,9 @@ jobs:
           name: FEBioManuals
           path: |
             jekyll/**/_site
+      - name: "Upload Doxygen Manual"
+        uses: actions/upload-artifact@v4
+        with:
+          name: DoxygenManual
+          path: |
+            FEBio/Documentation/Doxygen/doc/html
