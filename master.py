@@ -4,17 +4,46 @@ import subprocess, os, shutil, glob, ftp
 FBS_GIT = "https://github.com/febiosoftware/FEBioStudio.git"
 FEBIO_GIT = "https://github.com/febiosoftware/FEBio.git"
 
-subprocess.call(["git", "clone", "--branch", "master", "--depth", "1", FBS_GIT])
-subprocess.call(["git", "clone", "--branch", "master", "--depth", "1", FEBIO_GIT])
+try:
+    FBS_BRANCH = os.environ['FBS_BRANCH']
+except KeyError as e:
+    FBS_BRANCH = "master"
+
+subprocess.call(["git", "clone", "--branch", FBS_BRANCH, "--depth", "1", FBS_GIT])
+
+try:
+    FEB_BRANCH = os.environ['FEB_BRANCH']
+except KeyError as e:
+    FEB_BRANCH = "master"
+
+subprocess.call(["git", "clone", "--branch", FEB_BRANCH, "--depth", "1", FEBIO_GIT])
 
 # Get the version numbers
-out = subprocess.check_output(["git", "-C", "FEBioStudio", "describe"]).decode("utf-8").replace("v", "").split('.')
-FBS_MAJOR = out[0].strip()
-FBS_MINOR = out[1].strip()
+try:
+    FBS_VER = os.environ['FBS_VER']
+except KeyError as e:
+    FBS_VER = None
 
-out = subprocess.check_output(["git", "-C", "FEBio", "describe"]).decode("utf-8").replace("v", "").split('.')
-FEBIO_MAJOR = out[0].strip()
-FEBIO_MINOR = out[1].strip()
+if FBS_VER:
+    FBS_MAJOR = FBS_VER.split('.')[0].strip()
+    FBS_MINOR = FBS_VER.split('.')[1].strip()
+else:
+    out = subprocess.check_output(["git", "-C", "FEBioStudio", "describe"]).decode("utf-8").replace("v", "").split('.')
+    FBS_MAJOR = out[0].strip()
+    FBS_MINOR = out[1].strip()
+
+try:
+    FEB_VER = os.environ['FEB_VER']
+except KeyError as e:
+    FEB_VER = None
+
+if FEB_VER:
+    FEBIO_MAJOR = FEB_VER.split('.')[0].strip()
+    FEBIO_MINOR = FEB_VER.split('.')[1].strip()
+else:
+    out = subprocess.check_output(["git", "-C", "FEBio", "describe"]).decode("utf-8").replace("v", "").split('.')
+    FEBIO_MAJOR = out[0].strip()
+    FEBIO_MINOR = out[1].strip()
 
 # Set up the directory structure for lyx to html conversion
 BASEDIR = os.getcwd() + "/"
@@ -127,6 +156,18 @@ ftp.putRecursive(FT_JEKYLL_DIR + "/_site", FT_REMOTE_DIR)
 # Run doxygen
 DOX_DIR = BASEDIR + "FEBio/Documentation/Doxygen/"
 os.chdir(DOX_DIR)
+
+# Update the version number in the Doxyfile
+with open("Doxyfile", "rw") as file:
+    data = file.readlines()
+
+    for i in range(len(data)):
+        line  = data[i].strip()
+        if line.startswith("PROJECT_NUMBER"):
+            data[i] = "PROJECT_NUMBER = " + FEBIO_MAJOR + "." + FEBIO_MINOR + "\n"
+
+    file.writelines(data)   
+
 os.system("doxygen")
 ftp.putRecursive(DOX_DIR + "doc/html", "doxygen/febio" + FEBIO_MAJOR + "." + FEBIO_MINOR)
 

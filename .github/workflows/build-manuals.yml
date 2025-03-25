@@ -2,6 +2,27 @@ name: Build Manuals
 
 on:
   workflow_dispatch:
+    inputs:
+      FEB_BRANCH:
+        description: "FEBio Branch"
+        default: "master"
+        type: string
+        required: false
+      FEB_VER:
+        description: "FEBio Version"
+        default: ""
+        type: string
+        required: false
+      FBS_BRANCH:
+        description: "FEBio Studio Branch"
+        default: "master"
+        type: string
+        required: false
+      FBS_VER:
+        description: "FEBio Studio Version"
+        default: ""
+        type: string
+        required: false
   repository_dispatch:
     types: [release-published]
 
@@ -33,6 +54,10 @@ jobs:
           FTP_SERVER: ${{ secrets.FTP_SERVER }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FBS_VER: ${{ inputs.FBS_VER }}
+          FBS_BRANCH: ${{ inputs.FBS_BRANCH }}
+          FEB_VER: ${{ inputs.FEB_VER }}
+          FEB_BRANCH: ${{ inputs.FEB_BRANCH }}
       - name: "Upload Manuals"
         uses: actions/upload-artifact@v4
         with:
