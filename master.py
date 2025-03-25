@@ -158,7 +158,8 @@ DOX_DIR = BASEDIR + "FEBio/Documentation/Doxygen/"
 os.chdir(DOX_DIR)
 
 # Update the version number in the Doxyfile
-with open("Doxyfile", "rw") as file:
+data = []
+with open("Doxyfile", "r") as file:
     data = file.readlines()
 
     for i in range(len(data)):
@@ -166,7 +167,9 @@ with open("Doxyfile", "rw") as file:
         if line.startswith("PROJECT_NUMBER"):
             data[i] = "PROJECT_NUMBER = " + FEBIO_MAJOR + "." + FEBIO_MINOR + "\n"
 
-    file.writelines(data)   
+with open("Doxyfile", "w") as file:
+    file.writelines(data)
+
 
 os.system("doxygen")
 ftp.putRecursive(DOX_DIR + "doc/html", "doxygen/febio" + FEBIO_MAJOR + "." + FEBIO_MINOR)
