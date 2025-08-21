@@ -15,7 +15,6 @@ except KeyError as e:
     FBS_BRANCH = "master"
 
 subprocess.call(["git", "clone", "--branch", FBS_BRANCH, "--depth", "1", FBS_GIT])
-subprocess.call(["git", "-C", "FEBioStudio", "fetch", "--tags", "--force"])
 
 try:
     FEB_BRANCH = os.environ['FEB_BRANCH']
@@ -23,7 +22,6 @@ except KeyError as e:
     FEB_BRANCH = "master"
 
 subprocess.call(["git", "clone", "--branch", FEB_BRANCH, "--depth", "1", FEBIO_GIT])
-subprocess.call(["git", "-C", "FEBio", "fetch", "--tags", "--force"])
 
 # Get the version numbers
 try:
