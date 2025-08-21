@@ -23,6 +23,11 @@ on:
         default: ""
         type: string
         required: false
+      DEV_ONLY:
+        description: "Only build the dev manual?"
+        default: false
+        type: boolean
+        required: false
   repository_dispatch:
     types: [release-published]
 
@@ -58,6 +63,7 @@ jobs:
           FBS_BRANCH: ${{ inputs.FBS_BRANCH }}
           FEB_VER: ${{ inputs.FEB_VER }}
           FEB_BRANCH: ${{ inputs.FEB_BRANCH }}
+          DEV_ONLY: ${{ inputs.DEV_ONLY && '1' || '0' }}
       - name: "Upload Manuals"
         uses: actions/upload-artifact@v4
         with:
