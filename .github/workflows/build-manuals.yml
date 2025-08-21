@@ -65,6 +65,7 @@ jobs:
           FEB_BRANCH: ${{ inputs.FEB_BRANCH }}
           DEV_ONLY: ${{ inputs.DEV_ONLY && '1' || '0' }}
       - name: "Upload Manuals"
+        if: ${{ inputs.DEV_ONLY == 'false' }}
         uses: actions/upload-artifact@v4
         with:
           name: FEBioManuals
