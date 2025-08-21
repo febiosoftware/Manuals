@@ -50,9 +50,10 @@ else:
     FEBIO_MAJOR = out[0].strip()
     FEBIO_MINOR = out[1].strip()
 
+BASEDIR = os.getcwd() + "/"
+
 if not DEV_ONLY:
     # Set up the directory structure for lyx to html conversion
-    BASEDIR = os.getcwd() + "/"
     LYX_DIR = BASEDIR + "lyx/"
     FBS_LYX_DIR = LYX_DIR + "FEBioStudio/"
     FU_LYX_DIR = LYX_DIR + "FEBioUser/"
